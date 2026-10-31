@@ -1,0 +1,284 @@
+/* ===================== Teacher Fighter — estilos ===================== */
+:root{
+  --log-w: 1280px;
+  --log-h: 853px;
+  --gold:#ffcf3f;
+  --gold-dark:#c8860a;
+  --navy:#17203b;
+  --navy-light:#243156;
+  --red:#e23b2e;
+  --green:#39d353;
+  --ink:#0c1020;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+html,body{
+  width:100%; height:100%;
+  background:#05070e;
+  overflow:hidden;
+  font-family:"Press Start 2P", monospace;
+  color:#fff;
+  -webkit-font-smoothing:none;
+}
+
+#game{
+  position:fixed; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  background:#05070e;
+}
+
+/* El escenario lógico se escala para caber en la ventana (letterbox) */
+#stage{
+  position:relative;
+  width:var(--log-w);
+  height:var(--log-h);
+  transform-origin:center center;
+  background:#000;
+  box-shadow:0 0 40px rgba(0,0,0,.8);
+  overflow:hidden;
+}
+
+/* ---------- Pantallas ---------- */
+.screen{
+  position:absolute; inset:0;
+  display:none;
+  background-repeat:no-repeat;
+  background-position:center center;
+  image-rendering:pixelated;
+}
+.screen.is-active{ display:block; }
+.screen[data-fit="fill"]{ background-size:100% 100%; }
+.screen[data-fit="cover"]{ background-size:cover; }
+
+/* ---------- Hotspots del título ---------- */
+.hotspot{
+  position:absolute;
+  background:transparent;
+  border:0;
+  cursor:pointer;
+  border-radius:10px;
+  transition:background .1s, box-shadow .1s;
+}
+.hotspot:hover,.hotspot:focus-visible{
+  background:rgba(255,207,63,.18);
+  box-shadow:0 0 0 3px rgba(255,207,63,.55) inset;
+  outline:none;
+}
+
+/* ---------- Selección de personaje ---------- */
+.card-hotspot{
+  position:absolute; background:transparent; border:0; cursor:pointer;
+  border-radius:12px; transition:background .1s, box-shadow .1s;
+}
+.card-hotspot:hover,.card-hotspot:focus-visible{
+  background:rgba(255,207,63,.14);
+  box-shadow:0 0 0 4px var(--gold) inset, 0 0 18px rgba(255,207,63,.6);
+  outline:none;
+}
+.card-hotspot.locked-p1{ box-shadow:0 0 0 5px #39a0ff inset, 0 0 18px #39a0ff; background:rgba(57,160,255,.16); }
+.card-hotspot.locked-p2{ box-shadow:0 0 0 5px var(--red) inset, 0 0 18px var(--red); background:rgba(226,59,46,.16); }
+/* Tarjeta ya tomada por el P1: no disponible para el P2 */
+.card-hotspot.taken{ cursor:not-allowed; }
+.card-hotspot.taken::after{
+  content:"P1"; position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:"Press Start 2P", monospace; font-size:22px; color:#fff;
+  background:rgba(4,8,20,.55); border-radius:12px; text-shadow:2px 2px 0 #000;
+}
+.card-hotspot.taken:hover{ box-shadow:0 0 0 5px #39a0ff inset; }
+
+#select-mode{
+  position:absolute; top:2.5%; right:2.5%;
+  display:flex; gap:10px; z-index:5;
+}
+.mode-btn{
+  font-family:inherit; font-size:12px; color:#fff;
+  background:var(--navy); border:3px solid #000;
+  box-shadow:0 3px 0 #000, 0 0 0 3px var(--gold);
+  padding:12px 14px; cursor:pointer; border-radius:4px;
+}
+.mode-btn.is-active{ background:var(--gold); color:var(--ink); }
+
+/* Selector de escenario en la pantalla de selección */
+#scene-pick{
+  position:absolute; left:2.2%; bottom:3%; z-index:6;
+  display:flex; align-items:center; gap:10px;
+  background:rgba(12,16,32,.6); padding:8px 12px; border-radius:8px;
+  box-shadow:0 0 0 2px #000;
+}
+.scene-label{ font-size:10px; color:var(--gold); text-shadow:2px 2px 0 #000; }
+.scene-btn{
+  position:relative; width:118px; height:66px; padding:0;
+  border:3px solid #000; border-radius:5px; cursor:pointer;
+  background-size:cover; background-position:center;
+  image-rendering:pixelated; box-shadow:0 2px 0 #000;
+}
+.scene-btn span{
+  position:absolute; top:3px; left:5px; font-size:12px; color:#fff;
+  text-shadow:2px 2px 0 #000, 0 0 4px #000;
+}
+.scene-btn.is-active{ border-color:var(--gold); box-shadow:0 0 0 2px var(--gold), 0 0 14px rgba(255,207,63,.8); }
+
+#select-prompt{
+  position:absolute; top:2.5%; left:50%; transform:translateX(-50%);
+  font-size:15px; color:var(--gold);
+  text-shadow:3px 3px 0 #000; white-space:nowrap; z-index:5;
+  background:rgba(12,16,32,.55); padding:10px 16px; border-radius:6px;
+}
+
+/* ---------- Botones de esquina ---------- */
+.corner-btn{
+  position:absolute; top:16px; left:16px; z-index:6;
+  font-family:inherit; font-size:11px; color:#fff;
+  background:var(--navy); border:3px solid #000;
+  box-shadow:0 3px 0 #000; padding:10px 12px; cursor:pointer; border-radius:4px;
+}
+.corner-btn:hover{ background:var(--navy-light); }
+#pause-btn{ left:auto; right:16px; top:16px; }
+
+/* ---------- HUD de batalla ---------- */
+#hud{
+  position:absolute; top:0; left:0; right:0; z-index:4;
+  display:flex; align-items:flex-start; justify-content:space-between;
+  padding:14px 58px; gap:16px;
+  pointer-events:none;
+}
+.hud-side{ flex:1; max-width:46%; }
+.hud-name{ font-size:13px; margin-bottom:6px; text-shadow:2px 2px 0 #000; }
+.hud-p2{ text-align:right; }
+.hp-bar{
+  height:26px; background:#2a0b0b; border:3px solid #000;
+  box-shadow:0 0 0 2px #000, inset 0 0 6px rgba(0,0,0,.7);
+  overflow:hidden; border-radius:3px;
+}
+.hp-fill{
+  height:100%; width:100%;
+  background:linear-gradient(#7dff8a,var(--green));
+  transition:width .18s linear;
+}
+.hud-p2 .hp-fill{ margin-left:auto; background:linear-gradient(#ff9a7d,var(--red)); }
+.hp-fill.low{ background:linear-gradient(#ffd27d,#e2a52e); }
+.pips{ display:flex; gap:8px; margin-top:8px; }
+.pips-right{ justify-content:flex-end; }
+.pips span{
+  width:16px; height:16px; border-radius:50%;
+  background:rgba(0,0,0,.45); border:3px solid #000;
+  box-shadow:0 0 0 2px rgba(255,255,255,.25);
+}
+.pips span.won{ background:var(--gold); box-shadow:0 0 0 2px #000, 0 0 10px var(--gold); }
+
+#hud-center{ text-align:center; padding-top:2px; }
+#timer{
+  font-size:26px; color:var(--gold); text-shadow:3px 3px 0 #000;
+  background:rgba(12,16,32,.6); padding:6px 14px; border-radius:6px;
+}
+#round-label{ font-size:9px; margin-top:6px; color:#fff; text-shadow:2px 2px 0 #000; }
+
+/* ---------- Luchadores ---------- */
+#arena{ position:absolute; inset:0; z-index:2; overflow:hidden; }
+.fighter{
+  position:absolute; bottom:0; left:0;
+  background-repeat:no-repeat;
+  background-size:100% 100%;              /* un frame por pose */
+  image-rendering:pixelated;
+  will-change:transform,left,bottom;
+  transform-origin:bottom center;
+}
+.fighter.hurt{ filter:brightness(1.8) saturate(.4) sepia(1) hue-rotate(-30deg); }
+.fighter.block{ filter:brightness(1.2) drop-shadow(0 0 6px #39a0ff); }
+
+#announce{
+  position:absolute; top:40%; left:50%; transform:translate(-50%,-50%) scale(1);
+  z-index:5; font-size:60px; color:var(--gold);
+  text-shadow:5px 5px 0 #000, 0 0 18px rgba(255,207,63,.7);
+  opacity:0; pointer-events:none; transition:opacity .15s, transform .15s;
+}
+#announce.show{ opacity:1; }
+
+/* ---------- Paneles (opciones / récords / salir) ---------- */
+.panel-screen{
+  display:none;
+  background:
+    radial-gradient(circle at 50% 0%, #24305a 0%, #0c1020 70%);
+}
+.panel-screen.is-active{ display:flex; }
+.panel-screen{ align-items:center; justify-content:center; }
+.panel{
+  width:82%; max-height:88%; overflow:auto;
+  background:rgba(10,14,28,.92);
+  border:4px solid var(--gold);
+  box-shadow:0 0 0 4px #000, 0 12px 40px rgba(0,0,0,.7);
+  padding:28px 30px; border-radius:10px;
+}
+.panel h2{ font-size:22px; color:var(--gold); text-shadow:3px 3px 0 #000; margin-bottom:22px; text-align:center; }
+.panel h3{ font-size:13px; color:#9db4ff; margin:16px 0 10px; }
+.center-panel{ text-align:center; }
+.center-panel .hint{ margin:14px 0 24px; }
+
+.binds{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px 22px; }
+.binds h3{ grid-column:1 / -1; }
+.bind-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.bind-label{ font-size:10px; color:#cbd5ff; }
+.bind-key{
+  font-family:inherit; font-size:10px; color:var(--ink);
+  background:var(--gold); border:3px solid #000; box-shadow:0 3px 0 #000;
+  padding:8px 10px; min-width:70px; text-align:center; cursor:pointer; border-radius:4px;
+}
+.bind-key.listening{ background:var(--red); color:#fff; animation:blink .6s steps(2) infinite; }
+@keyframes blink{ 50%{ opacity:.4; } }
+
+.hint{ font-size:9px; color:#8ea0c8; margin-top:18px; line-height:1.6; text-align:center; }
+
+.panel-actions{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:24px; }
+.retro-btn{
+  font-family:inherit; font-size:12px; color:#fff;
+  background:var(--navy); border:3px solid #000;
+  box-shadow:0 4px 0 #000, 0 0 0 3px var(--gold);
+  padding:14px 18px; cursor:pointer; border-radius:4px;
+}
+.retro-btn:hover{ background:var(--gold); color:var(--ink); }
+.retro-btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #000, 0 0 0 3px var(--gold); }
+
+/* Tabla de récords */
+.rec-table{ width:100%; border-collapse:collapse; font-size:10px; }
+.rec-table th,.rec-table td{ border:2px solid #000; padding:8px 6px; text-align:center; }
+.rec-table th{ background:var(--gold); color:var(--ink); }
+.rec-table tr:nth-child(even) td{ background:rgba(255,255,255,.05); }
+.rec-empty{ text-align:center; font-size:11px; color:#8ea0c8; padding:30px 0; }
+
+/* ---------- Overlays ---------- */
+.overlay{
+  position:absolute; inset:0; z-index:20;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(4,6,14,.82);
+}
+.overlay.hidden{ display:none; }
+.result-box{
+  text-align:center; background:rgba(10,14,28,.95);
+  border:4px solid var(--gold); box-shadow:0 0 0 4px #000;
+  padding:34px 40px; border-radius:12px;
+}
+.result-box h2{ font-size:40px; color:var(--red); text-shadow:4px 4px 0 #000; margin-bottom:12px; }
+.result-box #result-sub{ font-size:12px; color:#fff; margin-bottom:10px; line-height:1.6; }
+
+/* ---------- Carga ---------- */
+#loading{
+  position:absolute; inset:0; z-index:50;
+  display:flex; align-items:center; justify-content:center;
+  background:#05070e; color:var(--gold); font-size:18px;
+  letter-spacing:2px;
+}
+#loading.hidden{ display:none; }
+
+/* ---------- Botón de sonido (fijo, fuera del escenario) ---------- */
+#sound-toggle{
+  position:fixed; bottom:14px; right:14px; z-index:60;
+  font-size:18px; line-height:1;
+  background:rgba(12,16,32,.8); color:#fff;
+  border:2px solid var(--gold); border-radius:6px;
+  padding:8px 10px; cursor:pointer;
+}
+#sound-toggle.muted{ opacity:.55; border-color:#777; }
+
+.hidden{ display:none !important; }

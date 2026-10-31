@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Fighter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="game">
+  <div id="stage">
+
+    <!-- ===================== PANTALLA TÍTULO ===================== -->
+    <section class="screen" id="screen-title" data-fit="fill" data-bg="Imagenes/Pantalla1.jpg">
+      <button class="hotspot" data-action="jugar"    style="left:13%;top:43.5%;width:24%;height:8.5%"></button>
+      <button class="hotspot" data-action="opciones" style="left:13%;top:53%;width:24%;height:8.5%"></button>
+      <button class="hotspot" data-action="records"  style="left:13%;top:62.5%;width:24%;height:8.5%"></button>
+      <button class="hotspot" data-action="salir"    style="left:13%;top:72%;width:24%;height:8.5%"></button>
+    </section>
+
+    <!-- ===================== PANTALLA SELECCIÓN ===================== -->
+    <section class="screen" id="screen-select" data-fit="fill" data-bg="Imagenes/Pantalla2.jpg">
+      <div id="select-mode">
+        <button class="mode-btn is-active" data-mode="1">1 JUGADOR</button>
+        <button class="mode-btn" data-mode="2">2 JUGADORES</button>
+      </div>
+      <div id="select-prompt">JUGADOR 1: ELIGE TU LUCHADOR</div>
+      <!-- hotspots de las 5 tarjetas (se generan por JS para alinear) -->
+      <button class="card-hotspot" data-index="0" style="left:5%;top:35%;width:15.5%;height:44%"></button>
+      <button class="card-hotspot" data-index="1" style="left:23.6%;top:35%;width:15.5%;height:44%"></button>
+      <button class="card-hotspot" data-index="2" style="left:42.2%;top:35%;width:15.5%;height:44%"></button>
+      <button class="card-hotspot" data-index="3" style="left:60.8%;top:35%;width:15.5%;height:44%"></button>
+      <button class="card-hotspot" data-index="4" style="left:79.4%;top:35%;width:15.5%;height:44%"></button>
+      <button class="corner-btn back-btn" data-action="to-title">&#9664; VOLVER</button>
+      <div id="scene-pick">
+        <span class="scene-label">ESCENARIO</span>
+        <button class="scene-btn is-active" data-scene="0" style="background-image:url('Imagenes/Escena1.png')"><span>1</span></button>
+        <button class="scene-btn" data-scene="1" style="background-image:url('Imagenes/Escena2.jpg')"><span>2</span></button>
+      </div>
+    </section>
+
+    <!-- ===================== PANTALLA BATALLA ===================== -->
+    <section class="screen" id="screen-battle" data-fit="cover" data-bg="Imagenes/Escena1.png">
+      <div id="hud">
+        <div class="hud-side hud-p1">
+          <div class="hud-name" id="hud-name-1">P1</div>
+          <div class="hp-bar"><div class="hp-fill" id="hp-1"></div></div>
+          <div class="pips" id="pips-1"><span></span><span></span></div>
+        </div>
+        <div id="hud-center">
+          <div id="timer">60</div>
+          <div id="round-label">ROUND 1</div>
+        </div>
+        <div class="hud-side hud-p2">
+          <div class="hud-name" id="hud-name-2">P2</div>
+          <div class="hp-bar"><div class="hp-fill" id="hp-2"></div></div>
+          <div class="pips pips-right" id="pips-2"><span></span><span></span></div>
+        </div>
+      </div>
+      <div id="arena">
+        <div class="fighter" id="fighter-1"></div>
+        <div class="fighter" id="fighter-2"></div>
+      </div>
+      <div id="announce"></div>
+      <button class="corner-btn" id="pause-btn" data-action="pause">&#10073;&#10073;</button>
+    </section>
+
+    <!-- ===================== OPCIONES ===================== -->
+    <section class="screen panel-screen" id="screen-options">
+      <div class="panel">
+        <h2>OPCIONES — CONTROLES</h2>
+        <div class="binds" id="binds-p1"><h3>JUGADOR 1</h3></div>
+        <div class="binds" id="binds-p2"><h3>JUGADOR 2</h3></div>
+        <p class="hint" id="bind-hint">Pulsa un botón y luego la tecla que quieras asignar.</p>
+        <div class="panel-actions">
+          <button class="retro-btn" data-action="reset-binds">RESTABLECER</button>
+          <button class="retro-btn" data-action="to-title">VOLVER</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== RÉCORDS ===================== -->
+    <section class="screen panel-screen" id="screen-records">
+      <div class="panel">
+        <h2>RÉCORDS</h2>
+        <div id="records-body"></div>
+        <div class="panel-actions">
+          <button class="retro-btn" data-action="clear-records">BORRAR RÉCORDS</button>
+          <button class="retro-btn" data-action="to-title">VOLVER</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== SALIR ===================== -->
+    <section class="screen panel-screen" id="screen-exit">
+      <div class="panel center-panel">
+        <h2>¡GRACIAS POR JUGAR!</h2>
+        <p class="hint">Teacher Fighter</p>
+        <div class="panel-actions">
+          <button class="retro-btn" data-action="to-title">VOLVER AL MENÚ</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== RESULTADO (overlay batalla) ===================== -->
+    <div id="result-overlay" class="overlay hidden">
+      <div class="result-box">
+        <h2 id="result-title">K.O.</h2>
+        <p id="result-sub"></p>
+        <div class="panel-actions">
+          <button class="retro-btn" data-action="rematch">REVANCHA</button>
+          <button class="retro-btn" data-action="to-select">CAMBIAR</button>
+          <button class="retro-btn" data-action="to-title">MENÚ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== PAUSA (overlay batalla) ===================== -->
+    <div id="pause-overlay" class="overlay hidden">
+      <div class="result-box">
+        <h2>PAUSA</h2>
+        <div class="panel-actions">
+          <button class="retro-btn" data-action="resume">CONTINUAR</button>
+          <button class="retro-btn" data-action="to-title">SALIR AL MENÚ</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="loading">CARGANDO…</div>
+  <button id="sound-toggle" title="Sonido">&#128266;</button>
+</div>
+<script src="js/audio.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
